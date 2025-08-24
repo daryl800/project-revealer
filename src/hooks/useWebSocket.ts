@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface WebSocketMessage {
+  sentence_id: number;
   type: string;
   payload: any;
 }

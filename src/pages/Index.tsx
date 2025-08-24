@@ -10,7 +10,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Trash2 } from "lucide-react";
 import { MemoryItem } from "@/types/memory";
 import { ReminderItem } from "@/types/reminder";
-import { playBase64Audio, requestMicPermission, AudioRecorder } from "@/utils/audioUtils";
+import {
+  requestMicPermission,
+  AudioRecorder,
+  playBase64Audio,
+} from "@/utils/audioUtils";
+import { useAudioQueue } from "@/hooks/useAudioQueue";
 
 const Index = () => {
   const { toast } = useToast();
@@ -22,7 +27,7 @@ const Index = () => {
   const [responseText, setResponseText] = useState("");
   const [reminders, setReminders] = useState<ReminderItem[]>([]);
   const [displayedText, setDisplayedText] = useState("");
-  
+
   const audioRecorder = useRef(new AudioRecorder());
   const fadeAnim = useRef(1);
   const [secondPartArrived, setSecondPartArrived] = useState(false);
@@ -99,10 +104,10 @@ const Index = () => {
       const existing = localStorage.getItem("reminders");
       const parsed: ReminderItem[] = existing ? JSON.parse(existing) : [];
       const updated = [newReminder, ...parsed];
-      
+
       localStorage.setItem("reminders", JSON.stringify(updated));
       setReminders(updated);
-      
+
       toast({
         title: "Reminder added",
         description: newReminder.description,
@@ -125,7 +130,12 @@ const Index = () => {
     console.log("reminderDatetime: ", obj.reminderDatetime);
     console.log("mainEvent: ", obj.mainEvent);
 
-    if (obj.isReminder && obj.categoryIcon && obj.reminderDatetime && obj.mainEvent) {
+    if (
+      obj.isReminder &&
+      obj.categoryIcon &&
+      obj.reminderDatetime &&
+      obj.mainEvent
+    ) {
       const newReminder: ReminderItem = {
         categoryIcon: obj.categoryIcon,
         datetime: obj.reminderDatetime,
@@ -141,21 +151,44 @@ const Index = () => {
     }
   };
 
+  const { addToQueue, playNextInQueue } = useAudioQueue();
+
   // WebSocket connection
-  const { connected: isWsReady, sendMessage, error } = useWebSocket({
+  const {
+    connected: isWsReady,
+    sendMessage,
+    error,
+  } = useWebSocket({
     url: "wss://memorykeeper.duckdns.org/ws",
     onMessage: (data) => {
-      console.log(`[${getCurrentTimestamp()}] 📩 Server replied, msg type: ${data.type}`);
+      console.log(
+        `[${getCurrentTimestamp()}] 📩 Server replied, msg type: ${data.type}`
+      );
 
       if (data.type === "obj") {
         handleExtractionObject(data.payload);
       } else if (data.type === "text") {
         setResponseText(data.payload);
-        console.log(`[${getCurrentTimestamp()}] 📩 Server replied, msg payload: ${data.payload}`);
+        console.log(
+          `[${getCurrentTimestamp()}] 📩 Server replied, msg payload: ${
+            data.payload
+          }`
+        );
+        // } else if (data.type === "audio") {
+        //   console.log("Playing audio sentence ID: ", data.sentence_id);
+        //   playBase64Audio(data.payload);
       } else if (data.type === "audio") {
-        playBase64Audio(data.payload);
+        console.log(`📩 Server reply [sentence ID]: ${data.sentence_id}`);
+
+        // Add to queue using the hook
+        addToQueue({
+          sentenceId: data.sentence_id,
+          audioData: data.payload,
+        });
       } else if (data.type === "error") {
-        console.log(`[${getCurrentTimestamp()}] 📩 Server error: ${data.payload}`);
+        console.log(
+          `[${getCurrentTimestamp()}] 📩 Server error: ${data.payload}`
+        );
         toast({
           title: "Server Error",
           description: data.payload,
@@ -185,7 +218,8 @@ const Index = () => {
         if (!granted) {
           toast({
             title: "Microphone Access Required",
-            description: "Please allow microphone access to use voice recording.",
+            description:
+              "Please allow microphone access to use voice recording.",
             variant: "destructive",
           });
         }
@@ -238,6 +272,7 @@ const Index = () => {
         sendMessage({
           type: "audio",
           payload: base64Audio,
+          sentence_id: 0,
         });
       }
     } catch (e) {
@@ -268,6 +303,7 @@ const Index = () => {
     sendMessage({
       type: "text",
       payload: "Hello, 請提醒我今晚8點要食藥 ",
+      sentence_id: 0,
     });
   };
 
@@ -280,8 +316,12 @@ const Index = () => {
       <div className="max-w-2xl mx-auto h-screen flex flex-col">
         {/* Header */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Memory Keeper</h1>
-          <p className="text-muted-foreground">Your AI-powered reminder assistant</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Memory Keeper
+          </h1>
+          <p className="text-muted-foreground">
+            Your AI-powered reminder assistant
+          </p>
         </div>
 
         {/* Reminder list */}
@@ -295,13 +335,16 @@ const Index = () => {
         <Card className="bg-card/80 backdrop-blur-sm mb-6">
           <CardContent className="p-4">
             <ScrollArea className="max-h-32">
-              {displayedText.startsWith("👋") || startsWithEmoji(displayedText) ? (
+              {displayedText.startsWith("👋") ||
+              startsWithEmoji(displayedText) ? (
                 <div>
                   <span
                     className="text-muted-foreground"
                     style={{
                       opacity: !secondPartArrived ? fadeAnim.current : 1,
-                      transition: !secondPartArrived ? undefined : "opacity 0.3s"
+                      transition: !secondPartArrived
+                        ? undefined
+                        : "opacity 0.3s",
                     }}
                   >
                     {displayedText.split("\n")[0]}
@@ -317,7 +360,7 @@ const Index = () => {
                   {displayedText}
                 </div>
               )}
-              
+
               {!displayedText && (
                 <p className="text-muted-foreground text-center py-4">
                   Start recording to see responses here
@@ -339,7 +382,7 @@ const Index = () => {
               <MessageSquare className="w-4 h-4" />
               Test Message
             </Button>
-            
+
             <Button
               onClick={clearReminders}
               variant="outline"

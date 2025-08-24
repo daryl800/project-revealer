@@ -1,32 +1,25 @@
-// Audio recording utilities for web
-export const playBase64Audio = async (base64Data: string) => {
-  try {
-    const audioBlob = base64ToBlob(base64Data, 'audio/wav');
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
-    
-    await audio.play();
-    
-    // Clean up the URL after playing
-    audio.onended = () => {
-      URL.revokeObjectURL(audioUrl);
-    };
-  } catch (error) {
-    console.error('Failed to play audio:', error);
-  }
+
+// utils/audioUtils.ts
+export const playBase64Audio = (base64: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const audio = new Audio(`data:audio/wav;base64,${base64}`);
+
+      // Resolve when the sound actually finishes
+      audio.addEventListener("ended", () => resolve(), { once: true });
+
+      // In case of error
+      audio.addEventListener("error", (err) => reject(err), { once: true });
+
+      audio.play().catch(reject);
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
 
-export const base64ToBlob = (base64: string, type: string): Blob => {
-  const bytes = atob(base64);
-  const byteNumbers = new Array(bytes.length);
-  
-  for (let i = 0; i < bytes.length; i++) {
-    byteNumbers[i] = bytes.charCodeAt(i);
-  }
-  
-  const byteArray = new Uint8Array(byteNumbers);
-  return new Blob([byteArray], { type });
-};
+
+
 
 export const requestMicPermission = async (): Promise<boolean> => {
   try {
