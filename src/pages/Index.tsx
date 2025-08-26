@@ -209,23 +209,6 @@ const Index = () => {
     }
   }, [isWsReady, showWelcome]);
 
-  // Request mic permission after welcome screen
-  useEffect(() => {
-    if (!showWelcome && isWsReady && micReady === false) {
-      (async () => {
-        const granted = await requestMicPermission();
-        setMicReady(granted);
-        if (!granted) {
-          toast({
-            title: "Microphone Access Required",
-            description:
-              "Please allow microphone access to use voice recording.",
-            variant: "destructive",
-          });
-        }
-      })();
-    }
-  }, [showWelcome, isWsReady, micReady, toast]);
 
   // Recording timer
   useEffect(() => {
@@ -237,23 +220,29 @@ const Index = () => {
   }, [isRecording]);
 
   const startRecording = async () => {
-    if (micReady) {
-      try {
-        setSeconds(0);
-        await audioRecorder.current.startRecording();
-        setIsRecording(true);
-      } catch (e) {
-        console.error("Recording failed", e);
+    // Request permission if not already granted
+    if (!micReady) {
+      const granted = await requestMicPermission();
+      setMicReady(granted);
+      if (!granted) {
         toast({
-          title: "Recording Failed",
-          description: "Unable to start audio recording",
+          title: "Microphone Access Required",
+          description: "Please allow microphone access to use voice recording.",
           variant: "destructive",
         });
+        return;
       }
-    } else {
+    }
+
+    try {
+      setSeconds(0);
+      await audioRecorder.current.startRecording();
+      setIsRecording(true);
+    } catch (e) {
+      console.error("Recording failed", e);
       toast({
-        title: "Microphone Access Required",
-        description: "Please allow microphone access in your browser settings.",
+        title: "Recording Failed",
+        description: "Unable to start audio recording",
         variant: "destructive",
       });
     }
