@@ -350,9 +350,12 @@ const Index = () => {
         </div>
 
         {/* Response text - better mobile sizing */}
+        {/* Response text - better mobile sizing */}
         <Card className="bg-card/80 backdrop-blur-sm mb-4 sm:mb-6">
-          <CardContent className="p-3 sm:p-4">
-            <ScrollArea className="max-h-24 sm:max-h-32">
+          <CardContent className="p-3 sm:p-4 h-24 sm:h-32">
+            {" "}
+            {/* Fixed height */}
+            <ScrollArea className="h-full w-full">
               {displayedText.startsWith("👋") ||
               startsWithEmoji(displayedText) ? (
                 <div className="text-sm sm:text-base">
@@ -380,9 +383,11 @@ const Index = () => {
               )}
 
               {!displayedText && (
-                <p className="text-muted-foreground text-center py-3 sm:py-4 text-sm sm:text-base">
-                  Start recording to see responses here
-                </p>
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-muted-foreground text-center text-sm sm:text-base">
+                    Start recording to see responses here
+                  </p>
+                </div>
               )}
             </ScrollArea>
           </CardContent>
