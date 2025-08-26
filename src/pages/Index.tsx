@@ -315,14 +315,17 @@ const Index = () => {
       "佛山有咩好去處？",
     ];
 
-    const randomMessage =
-      testMessages[Math.floor(Math.random() * testMessages.length)];
+    const randomIndex = Math.floor(Math.random() * testMessages.length);
+    const randomMessage = testMessages[randomIndex];
 
     sendMessage({
       type: "text",
       payload: randomMessage,
       sentence_id: 0,
     });
+
+    // Optional: console log which message was sent
+    console.log(`Sent test message ${randomIndex + 1}: ${randomMessage}`);
   };
 
   if (!isWsReady || showWelcome) {
