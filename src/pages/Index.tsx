@@ -91,6 +91,7 @@ const Index = () => {
   }, []);
 
   const clearReminders = () => {
+    setDisplayedText("");
     localStorage.clear();
     setReminders([]);
     toast({
@@ -306,9 +307,20 @@ const Index = () => {
   };
 
   const sendTestMsg = () => {
+    const testMessages = [
+      "Hello, 請提醒我今晚8點要食藥",
+      "請問依家既美國總統係邊個？",
+      "Remember to buy groceries this Saturday",
+      "提醒我星期五要交報告",
+      "佛山有咩好去處？",
+    ];
+
+    const randomMessage =
+      testMessages[Math.floor(Math.random() * testMessages.length)];
+
     sendMessage({
       type: "text",
-      payload: "Hello, 請提醒我今晚8點要食藥 ",
+      payload: randomMessage,
       sentence_id: 0,
     });
   };
