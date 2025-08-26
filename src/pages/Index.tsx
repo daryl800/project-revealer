@@ -308,10 +308,8 @@ const Index = () => {
 
   const sendTestMsg = () => {
     const testMessages = [
-      "Hello, 請提醒我今晚8點要食藥",
+      "請提醒我今晚8點要食藥",
       "請問依家既美國總統係邊個？",
-      "Remember to buy groceries this Saturday",
-      "提醒我星期五要交報告",
       "佛山有咩好去處？",
     ];
 
