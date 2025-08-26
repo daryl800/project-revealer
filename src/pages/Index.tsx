@@ -209,6 +209,23 @@ const Index = () => {
     }
   }, [isWsReady, showWelcome]);
 
+  // Request mic permission after welcome screen
+  useEffect(() => {
+    if (!showWelcome && isWsReady && micReady === false) {
+      (async () => {
+        const granted = await requestMicPermission();
+        setMicReady(granted);
+        if (!granted) {
+          toast({
+            title: "Microphone Access Required",
+            description: "Please allow microphone access to use voice recording.",
+            variant: "destructive",
+          });
+        }
+      })();
+    }
+  }, [showWelcome, isWsReady, micReady, toast]);
+
 
   // Recording timer
   useEffect(() => {
