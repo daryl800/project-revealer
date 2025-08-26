@@ -218,14 +218,14 @@ const Index = () => {
         if (!granted) {
           toast({
             title: "Microphone Access Required",
-            description: "Please allow microphone access to use voice recording.",
+            description:
+              "Please allow microphone access to use voice recording.",
             variant: "destructive",
           });
         }
       })();
     }
   }, [showWelcome, isWsReady, micReady, toast]);
-
 
   // Recording timer
   useEffect(() => {
@@ -318,8 +318,8 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] p-4 md:p-6">
-      <div className="max-w-2xl mx-auto h-screen flex flex-col">
+    <div className="min-h-[100dvh] bg-gradient-to-b from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] p-4 md:p-6">
+      <div className="max-w-2xl mx-auto flex flex-col h-[100dvh]">
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-foreground mb-2">

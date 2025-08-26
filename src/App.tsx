@@ -13,7 +13,9 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter basename="/project-revealer">
+      <BrowserRouter
+        basename={import.meta.env.PROD ? "/project-revealer" : "/"}
+      >
         {" "}
         {/* ADD THIS */}
         <Routes>
