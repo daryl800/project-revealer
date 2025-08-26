@@ -316,34 +316,33 @@ const Index = () => {
   if (!isWsReady || showWelcome) {
     return <WelcomeScreen />;
   }
-
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-b from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] p-4 md:p-6">
+    <div className="min-h-[100dvh] bg-gradient-to-b from-[hsl(var(--gradient-start))] to-[hsl(var(--gradient-end))] p-3 sm:p-4 md:p-6 safe-area-bottom">
       <div className="max-w-2xl mx-auto flex flex-col h-[100dvh]">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+        {/* Header - reduced spacing for mobile */}
+        <div className="text-center mb-4 sm:mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1 sm:mb-2">
             Memory Keeper
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Your AI-powered reminder assistant
           </p>
         </div>
 
-        {/* Reminder list */}
-        <div className="flex-1 min-h-0 mb-6">
-          <ScrollArea className="h-full">
+        {/* Reminder list - fixed height for mobile */}
+        <div className="flex-1 min-h-0 mb-4 sm:mb-6">
+          <ScrollArea className="h-full max-h-[30vh] sm:max-h-[40vh]">
             <ReminderList reminders={reminders} setReminders={setReminders} />
           </ScrollArea>
         </div>
 
-        {/* Response text */}
-        <Card className="bg-card/80 backdrop-blur-sm mb-6">
-          <CardContent className="p-4">
-            <ScrollArea className="max-h-32">
+        {/* Response text - better mobile sizing */}
+        <Card className="bg-card/80 backdrop-blur-sm mb-4 sm:mb-6">
+          <CardContent className="p-3 sm:p-4">
+            <ScrollArea className="max-h-24 sm:max-h-32">
               {displayedText.startsWith("👋") ||
               startsWithEmoji(displayedText) ? (
-                <div>
+                <div className="text-sm sm:text-base">
                   <span
                     className="text-muted-foreground"
                     style={{
@@ -362,13 +361,13 @@ const Index = () => {
                   )}
                 </div>
               ) : (
-                <div className="text-foreground whitespace-pre-wrap">
+                <div className="text-foreground whitespace-pre-wrap text-sm sm:text-base">
                   {displayedText}
                 </div>
               )}
 
               {!displayedText && (
-                <p className="text-muted-foreground text-center py-4">
+                <p className="text-muted-foreground text-center py-3 sm:py-4 text-sm sm:text-base">
                   Start recording to see responses here
                 </p>
               )}
@@ -376,16 +375,16 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Action buttons */}
-        <div className="space-y-3 mb-6">
+        {/* Action buttons - better mobile spacing */}
+        <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
           <div className="flex gap-2 justify-center">
             <Button
               onClick={sendTestMsg}
               variant="secondary"
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
             >
-              <MessageSquare className="w-4 h-4" />
+              <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />
               Test Message
             </Button>
 
@@ -393,16 +392,16 @@ const Index = () => {
               onClick={clearReminders}
               variant="outline"
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
               Clear All
             </Button>
           </div>
         </div>
 
-        {/* Talk panel */}
-        <div className="pb-4">
+        {/* Talk panel - mobile bottom padding */}
+        <div className="pb-2 sm:pb-4 safe-area-inset-bottom">
           <TalkPanel
             isRecording={isRecording}
             seconds={seconds}
