@@ -1,14 +1,12 @@
-// In App.tsx or wherever your router is
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import { BrowserRouter } from "react-router-dom";
 
-export default function App() {
-  return (
-    <BrowserRouter basename="/project-revealer/">
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* other routes */}
-      </Routes>
-    </BrowserRouter>
-  );
-}
+const root = createRoot(document.getElementById("root")!);
+
+root.render(
+  <BrowserRouter basename="/project-revealer/">
+    <App />
+  </BrowserRouter>
+);
