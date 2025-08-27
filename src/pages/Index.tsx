@@ -365,8 +365,8 @@ const Index = () => {
           {" "}
           {/* Added max-h-[50vh] */}
           <Card className="bg-card/80 backdrop-blur-sm h-full">
-            <CardContent className="p-3 sm:p-4 h-32 flex flex-col justify-start">
-              <ScrollArea className="h-full w-full">
+            <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
+              <ScrollArea className="flex-1 w-full">
                 {displayedText.startsWith("👋") ||
                 startsWithEmoji(displayedText) ? (
                   <div className="text-lg lg:text-base">
