@@ -369,7 +369,7 @@ const Index = () => {
               <ScrollArea className="h-full w-full">
                 {displayedText.startsWith("👋") ||
                 startsWithEmoji(displayedText) ? (
-                  <div className="text-sm lg:text-base">
+                  <div className="text-lg lg:text-base">
                     <span
                       className="text-muted-foreground"
                       style={{
