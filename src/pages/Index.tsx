@@ -355,7 +355,7 @@ const Index = () => {
 
         {/* Reminder list - fixed height for mobile */}
         <div className="flex-1 min-h-0 mb-4 sm:mb-6">
-          <ScrollArea className="h-full max-h-[20vh] sm:max-h-[40vh]">
+          <ScrollArea className="h-full max-h-[40vh] sm:max-h-[40vh]">
             <ReminderList reminders={reminders} setReminders={setReminders} />
           </ScrollArea>
         </div>
@@ -371,7 +371,7 @@ const Index = () => {
               <ScrollArea className="h-full w-full">
                 {displayedText.startsWith("👋") ||
                 startsWithEmoji(displayedText) ? (
-                  <div className="text-sm sm:text-base">
+                  <div className="text-sm lg:text-base">
                     <span
                       className="text-muted-foreground"
                       style={{

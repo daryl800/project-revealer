@@ -10,9 +10,7 @@ const WelcomeScreen = () => {
         <h1 className="text-3xl font-bold text-foreground mb-4">
           Memory Keeper
         </h1>
-        <p className="text-lg text-muted-foreground">
-          Connecting to server...
-        </p>
+        <p className="text-lg text-gray-400">Connecting to server...</p>
       </div>
     </div>
   );
