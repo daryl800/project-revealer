@@ -360,16 +360,13 @@ const Index = () => {
           </ScrollArea>
         </div>
 
-        {/* Response text - flexible with max limit */}
         <div className="flex-1 min-h-0 mb-4 sm:mb-6 max-h-[50vh]">
-          {" "}
-          {/* Added max-h-[50vh] */}
           <Card className="bg-card/80 backdrop-blur-sm h-full">
-            <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
-              <ScrollArea className="flex-1 w-full">
+            <CardContent className="p-3 sm:p-4 h-full">
+              <ScrollArea className="h-full w-full">
                 {displayedText.startsWith("👋") ||
                 startsWithEmoji(displayedText) ? (
-                  <div className="text-lg lg:text-base">
+                  <div className="text-lg lg:text-base whitespace-pre-wrap">
                     <span
                       className="text-muted-foreground"
                       style={{
