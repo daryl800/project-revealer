@@ -128,7 +128,7 @@ All colors MUST be HSL.
 /* Mobile responsiveness */
 @media (max-width: 640px) {
   .mobile-text-sm {
-    font-size: 0.875rem;
+    font-size: 2.0rem;
     line-height: 1.25rem;
   }
   

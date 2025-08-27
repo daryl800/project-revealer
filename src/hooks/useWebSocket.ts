@@ -12,36 +12,66 @@ interface UseWebSocketProps {
   onClose?: () => void;
   maxReconnectAttempts?: number;
   reconnectInterval?: number;
+  heartbeatInterval?: number; // ms, e.g. 15000
 }
 
-export const useWebSocket = ({ 
-  url, 
-  onMessage, 
+export const useWebSocket = ({
+  url,
+  onMessage,
   onClose,
   maxReconnectAttempts = 5,
-  reconnectInterval = 3000
+  reconnectInterval = 3000,
+  heartbeatInterval = 15000,
 }: UseWebSocketProps) => {
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reconnectAttempts, setReconnectAttempts] = useState(0);
+
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+  const heartbeatTimer = useRef<NodeJS.Timeout | null>(null);
   const isConnecting = useRef(false);
+  const manualClose = useRef(false);
+
+  const cleanupSocket = () => {
+    if (heartbeatTimer.current) {
+      clearInterval(heartbeatTimer.current);
+      heartbeatTimer.current = null;
+    }
+    if (ws.current) {
+      ws.current.onclose = null;
+      ws.current.onmessage = null;
+      ws.current.onerror = null;
+      ws.current.onopen = null;
+      ws.current.close();
+      ws.current = null;
+    }
+    isConnecting.current = false;
+  };
+
+  const startHeartbeat = () => {
+    if (heartbeatInterval > 0) {
+      heartbeatTimer.current = setInterval(() => {
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          ws.current.send(JSON.stringify({ type: 'ping' }));
+        }
+      }, heartbeatInterval);
+    }
+  };
 
   const connect = useCallback(() => {
-    // Prevent multiple simultaneous connection attempts
     if (isConnecting.current || (ws.current && ws.current.readyState === WebSocket.CONNECTING)) {
       console.log('WebSocket connection already in progress, skipping...');
       return;
     }
 
-    // Close existing connection if any
-    if (ws.current && ws.current.readyState !== WebSocket.CLOSED) {
-      ws.current.close();
-    }
+    cleanupSocket();
+    manualClose.current = false;
 
     try {
-      console.log(`Attempting to connect to WebSocket: ${url} (attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`);
+      console.log(
+        `Attempting to connect to WebSocket: ${url} (attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`
+      );
       isConnecting.current = true;
       ws.current = new WebSocket(url);
 
@@ -51,11 +81,16 @@ export const useWebSocket = ({
         setReconnectAttempts(0);
         isConnecting.current = false;
         console.log('✅ WebSocket connected successfully');
+        startHeartbeat();
       };
 
       ws.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
+          if (data?.type === 'pong') {
+            // ignore keepalive replies
+            return;
+          }
           onMessage(data);
         } catch (e) {
           console.error('Failed to parse WebSocket message:', e);
@@ -63,21 +98,25 @@ export const useWebSocket = ({
       };
 
       ws.current.onclose = (event) => {
+        cleanupSocket();
         setConnected(false);
-        isConnecting.current = false;
-        console.log(`🔕 WebSocket connection closed (code: ${event.code}, reason: ${event.reason})`);
+        console.log(
+          `🔕 WebSocket connection closed (code: ${event.code}, reason: ${event.reason})`
+        );
         onClose?.();
-        
-        // Only attempt to reconnect if we haven't exceeded max attempts
-        if (reconnectAttempts < maxReconnectAttempts) {
-          const backoffDelay = Math.min(reconnectInterval * Math.pow(2, reconnectAttempts), 30000);
-          console.log(`Attempting to reconnect in ${backoffDelay}ms... (${reconnectAttempts + 1}/${maxReconnectAttempts})`);
-          
+
+        if (!manualClose.current && reconnectAttempts < maxReconnectAttempts) {
+          // Linear backoff
+          const backoffDelay = reconnectInterval * (reconnectAttempts + 1);
+          console.log(
+            `Attempting to reconnect in ${backoffDelay}ms... (${reconnectAttempts + 1}/${maxReconnectAttempts})`
+          );
+
           reconnectTimeout.current = setTimeout(() => {
-            setReconnectAttempts(prev => prev + 1);
+            setReconnectAttempts((prev) => prev + 1);
             connect();
           }, backoffDelay);
-        } else {
+        } else if (!manualClose.current) {
           setError('Max reconnection attempts reached. Please refresh the page.');
           console.error('❌ Max reconnection attempts reached');
         }
@@ -85,12 +124,14 @@ export const useWebSocket = ({
 
       ws.current.onerror = (event) => {
         isConnecting.current = false;
-        const errorMsg = `WebSocket connection error (attempts: ${reconnectAttempts + 1}/${maxReconnectAttempts})`;
+        const errorMsg = `WebSocket connection error (attempts: ${
+          reconnectAttempts + 1
+        }/${maxReconnectAttempts})`;
         setError(errorMsg);
         console.error('❌ WebSocket error:', {
           url,
           readyState: ws.current?.readyState,
-          event
+          event,
         });
       };
     } catch (e) {
@@ -101,27 +142,33 @@ export const useWebSocket = ({
   }, [url, onMessage, onClose, reconnectAttempts, maxReconnectAttempts, reconnectInterval]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ type: "ping" }));
+      }
+    }, 15000); // every 15s
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     connect();
 
     return () => {
+      manualClose.current = true;
       if (reconnectTimeout.current) {
         clearTimeout(reconnectTimeout.current);
       }
-      if (ws.current) {
-        isConnecting.current = false;
-        ws.current.close();
-      }
+      cleanupSocket();
     };
-  }, [url]); // Only reconnect when URL changes
+  }, [url]);
 
   const disconnect = useCallback(() => {
-    setReconnectAttempts(maxReconnectAttempts); // Prevent further reconnection
+    manualClose.current = true;
+    setReconnectAttempts(maxReconnectAttempts); // block auto-reconnect
     if (reconnectTimeout.current) {
       clearTimeout(reconnectTimeout.current);
     }
-    if (ws.current) {
-      ws.current.close();
-    }
+    cleanupSocket();
   }, [maxReconnectAttempts]);
 
   const sendMessage = useCallback((message: WebSocketMessage) => {

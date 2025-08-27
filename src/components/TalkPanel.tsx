@@ -68,7 +68,7 @@ const TalkPanel = ({
         )}
       </Button>
 
-      <p className="text-xs sm:text-sm text-muted-foreground text-center max-w-[85vw] sm:max-w-xs px-2">
+      <p className="text-xs sm:text-sm text-gray-400 text-center max-w-[85vw] sm:max-w-xs px-2">
         {autoStop
           ? "Tap to start recording, will auto-stop on silence"
           : "Hold to record, release to send"}

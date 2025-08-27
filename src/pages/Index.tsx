@@ -306,6 +306,8 @@ const Index = () => {
     }
   };
 
+  const prevIndex = useRef<number | null>(null);
+
   const sendTestMsg = () => {
     const testMessages = [
       "請提醒我今晚8點要食藥",
@@ -315,7 +317,15 @@ const Index = () => {
       "佛山有咩好去處？",
     ];
 
-    const randomIndex = Math.floor(Math.random() * testMessages.length);
+    let randomIndex: number;
+
+    // reroll until it’s different from last index
+    do {
+      randomIndex = Math.floor(Math.random() * testMessages.length);
+    } while (randomIndex === prevIndex.current && testMessages.length > 1);
+
+    prevIndex.current = randomIndex;
+
     const randomMessage = testMessages[randomIndex];
 
     sendMessage({
@@ -324,7 +334,6 @@ const Index = () => {
       sentence_id: 0,
     });
 
-    // Optional: console log which message was sent
     console.log(`Sent test message ${randomIndex + 1}: ${randomMessage}`);
   };
 
@@ -346,7 +355,7 @@ const Index = () => {
 
         {/* Reminder list - fixed height for mobile */}
         <div className="flex-1 min-h-0 mb-4 sm:mb-6">
-          <ScrollArea className="h-full max-h-[30vh] sm:max-h-[40vh]">
+          <ScrollArea className="h-full max-h-[20vh] sm:max-h-[40vh]">
             <ReminderList reminders={reminders} setReminders={setReminders} />
           </ScrollArea>
         </div>
