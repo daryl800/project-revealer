@@ -351,49 +351,52 @@ const Index = () => {
           </ScrollArea>
         </div>
 
-        {/* Response text - better mobile sizing */}
-        {/* Response text - better mobile sizing */}
-        <Card className="bg-card/80 backdrop-blur-sm mb-4 sm:mb-6">
-          <CardContent className="p-3 sm:p-4 h-24 sm:h-32">
-            {" "}
-            {/* Fixed height */}
-            <ScrollArea className="h-full w-full">
-              {displayedText.startsWith("👋") ||
-              startsWithEmoji(displayedText) ? (
-                <div className="text-sm sm:text-base">
-                  <span
-                    className="text-muted-foreground"
-                    style={{
-                      opacity: !secondPartArrived ? fadeAnim.current : 1,
-                      transition: !secondPartArrived
-                        ? undefined
-                        : "opacity 0.3s",
-                    }}
-                  >
-                    {displayedText.split("\n")[0]}
-                  </span>
-                  {displayedText.split("\n").length > 1 && (
-                    <div className="text-foreground">
-                      {displayedText.split("\n").slice(1).join("\n")}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-foreground whitespace-pre-wrap text-sm sm:text-base">
-                  {displayedText}
-                </div>
-              )}
+        {/* Response text - flexible with max limit */}
+        <div className="flex-1 min-h-0 mb-4 sm:mb-6 max-h-[50vh]">
+          {" "}
+          {/* Added max-h-[50vh] */}
+          <Card className="bg-card/80 backdrop-blur-sm h-full">
+            <CardContent className="p-3 sm:p-4 h-24 sm:h-32">
+              {" "}
+              {/* Fixed height */}
+              <ScrollArea className="h-full w-full">
+                {displayedText.startsWith("👋") ||
+                startsWithEmoji(displayedText) ? (
+                  <div className="text-sm sm:text-base">
+                    <span
+                      className="text-muted-foreground"
+                      style={{
+                        opacity: !secondPartArrived ? fadeAnim.current : 1,
+                        transition: !secondPartArrived
+                          ? undefined
+                          : "opacity 0.3s",
+                      }}
+                    >
+                      {displayedText.split("\n")[0]}
+                    </span>
+                    {displayedText.split("\n").length > 1 && (
+                      <div className="text-foreground">
+                        {displayedText.split("\n").slice(1).join("\n")}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-foreground whitespace-pre-wrap text-sm sm:text-base">
+                    {displayedText}
+                  </div>
+                )}
 
-              {!displayedText && (
-                <div className="h-full flex items-center justify-center">
-                  <p className="text-muted-foreground text-center text-sm sm:text-base">
-                    Start recording to see responses here
-                  </p>
-                </div>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                {!displayedText && (
+                  <div className="h-full flex items-center justify-center">
+                    <p className="text-muted-foreground text-center text-sm sm:text-base">
+                      Start recording to see responses here
+                    </p>
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Action buttons - better mobile spacing */}
         <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
