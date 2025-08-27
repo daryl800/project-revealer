@@ -10,17 +10,17 @@ interface ReminderListProps {
 
 const ReminderList = ({ reminders, setReminders }: ReminderListProps) => {
   const toggleReminder = (index: number) => {
-    const updated = reminders.map((reminder, i) => 
+    const updated = reminders.map((reminder, i) =>
       i === index ? { ...reminder, isDone: !reminder.isDone } : reminder
     );
     setReminders(updated);
-    localStorage.setItem('reminders', JSON.stringify(updated));
+    localStorage.setItem("reminders", JSON.stringify(updated));
   };
 
   const deleteReminder = (index: number) => {
     const updated = reminders.filter((_, i) => i !== index);
     setReminders(updated);
-    localStorage.setItem('reminders', JSON.stringify(updated));
+    localStorage.setItem("reminders", JSON.stringify(updated));
   };
 
   const formatDateTime = (datetime: string) => {
@@ -28,10 +28,16 @@ const ReminderList = ({ reminders, setReminders }: ReminderListProps) => {
       const date = new Date(datetime);
       return {
         date: date.toLocaleDateString(),
-        time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
       };
     } catch {
-      return { date: datetime.split(' ')[0], time: datetime.split(' ')[1] || '' };
+      return {
+        date: datetime.split(" ")[0],
+        time: datetime.split(" ")[1] || "",
+      };
     }
   };
 
@@ -54,21 +60,28 @@ const ReminderList = ({ reminders, setReminders }: ReminderListProps) => {
       {reminders.map((reminder, index) => {
         const { date, time } = formatDateTime(reminder.datetime);
         return (
-          <Card key={index} className={`bg-card/80 backdrop-blur-sm transition-all duration-200 hover:shadow-md ${
-            reminder.isDone ? 'opacity-60' : ''
-          }`}>
-            <CardContent className="p-4">
+          <Card
+            key={index}
+            className={`bg-card/80 backdrop-blur-sm transition-all duration-200 hover:shadow-md ${
+              reminder.isDone ? "opacity-60" : ""
+            }`}
+          >
+            <CardContent className="p-2">
               <div className="flex items-start gap-3">
                 <div className="text-2xl">{reminder.categoryIcon}</div>
-                
+
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${
-                    reminder.isDone ? 'line-through text-muted-foreground' : 'text-foreground'
-                  }`}>
+                  <p
+                    className={`text-sm font-medium ${
+                      reminder.isDone
+                        ? "line-through text-muted-foreground"
+                        : "text-foreground"
+                    }`}
+                  >
                     {reminder.description}
                   </p>
-                  
-                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+
+                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                     <Calendar className="w-3 h-3" />
                     <span>{date}</span>
                     <Clock className="w-3 h-3 ml-2" />
@@ -85,7 +98,7 @@ const ReminderList = ({ reminders, setReminders }: ReminderListProps) => {
                   >
                     <Check className="w-4 h-4" />
                   </Button>
-                  
+
                   <Button
                     size="sm"
                     variant="destructive"
